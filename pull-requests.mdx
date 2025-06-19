@@ -1,111 +1,114 @@
 ---
 title: "Creating Pull Requests"
-description: "Preview changes locally to update your docs"
+description: "Pull Requests (PRs) are the primary way to contribute code changes to D2D Cure. This guide will walk you through the process of creating, submitting, and managing pull requests."
 ---
 
-<Info>
-  **Prerequisite**: Please install Node.js (version 19 or higher) before proceeding. \
-  
-  Please upgrade to `docs.json` before proceeding and delete the legacy `mint.json` file.
-</Info>
+## Main Development Branch
 
-Follow these steps to install and run Mintlify on your operating system:
+- The `dev` branch is our main development branch (not `main` ). This is because the production environment, Vercel, is configured to track changes on the `dev` branch and auto-deploy when any changes are detected 
+- Thus the `dev` branch serves as the source of truth for the latest stable code
 
-**Step 1**: Install Mintlify:
+## Keeping Your Local Codebase Synced to GitHub Repo
 
-<CodeGroup>
+1. Check to see if your local codebase is synced to the GitHub repo: 
 
-```bash npm
-npm i -g mintlify
-```
+   ```bash Terminal
+   > git remote -v 
+   ```
 
+   If it is not, then sync it by running: 
 
-```bash yarn
-yarn global add mintlify
-```
+   ```bash Terminal
+   > git remote add origin https://github.com/d2dcure/d2d-cure.git
+   ```
+2. Ensure your local `dev` branch is up to date:
 
-</CodeGroup>
+   ```bash Terminal
+   > git checkout dev
+   > git pull origin dev
+   ```
 
-**Step 2**: Navigate to the docs directory (where the `docs.json` file is located) and execute the following command:
+## Creating a New Branch 
 
-```bash
-mintlify dev
-```
+Any changes you make to the codebase (new features, bug fixes, etc) must be done in a new branch that will later be submitted as a PR and later (if everything looks good) merged into the `dev` branch. Never work in the  `dev` branch directly, as this branch syncs directly with the production environment.
 
-A local preview of your documentation will be available at `http://localhost:3000`.
+### Branch Naming Convention
 
-### Custom Ports
+- Use kebab-case format
+- Add a descriptive title based on what changes you're making
+- Example: `add-user-authentication`
 
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. To run Mintlify on port 3333, for instance, use this command:
+### Steps to Create a Branch & Submit a PR 
 
-```bash
-mintlify dev --port 3333
-```
+1. Make sure `dev` is up to date, then create a new branch off of it: 
 
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
+   ```bash Terminal
+   > git checkout dev
+   > git pull origin dev
+   > git checkout -b branch-name-here
+   ```
+2. Install dependencies (if needed):
 
-```md
-Port 3000 is already in use. Trying 3001 instead.
-```
+   ```bash Terminal
+   > npm install
+   ```
+3. Make your code changes 
+4. When you're done, now it's time to commit your changes and create the PR: 
 
-## Mintlify Versions
+   ```bash Terminal
+   > git add .
+   > git commit -m "your description of changes here" 
+   > git push origin branch-name-here
+   ```
+5. Go to the GitHub repository, click "Compare & pull request", and then scroll down and click "Create Pull Request". Make sure you are merging your branch into the `dev` branch. Someone will review it and merge it for you if everything looks good
 
-Please note that each CLI release is associated with a specific version of Mintlify. If your local website doesn't align with the production version, please update the CLI:
+## Common Issues and Solutions
 
-<CodeGroup>
+### Merge Conflicts
 
-```bash npm
-npm i -g mintlify@latest
-```
+1. Update your branch with latest `dev`:
 
+   ```bash Terminal
+   > git checkout dev
+   > git pull origin dev
+   > git checkout branch-name-here
+   > git merge dev
+   ```
+2. Resolve conflicts in your code editor
+3. Commit the resolved conflicts
+4. Push the changes
 
-```bash yarn
-yarn global upgrade mintlify
-```
+### Failed CI Checks
 
-</CodeGroup>
+- Review the error messages by running: 
 
-## Validating Links
+  ```bash Terminal
+  > npm build
+  ```
+- Fix any failing tests
+- Address linting issues
+- Push the fixes
 
-The CLI can assist with validating reference links made in your documentation. To identify any broken links, use the following command:
+## Best Practices 
 
-```bash
-mintlify broken-links
-```
+### Code Quality
 
-## Deployment
+- Write clean, maintainable code
+- Follow TypeScript best practices
+- Include appropriate comments 
+- Update this documentation if needed 
 
-<Tip>
-  Unlimited editors available under the [Pro
-  Plan](https://mintlify.com/pricing) and above.
-</Tip>
+### Communication
 
-If the deployment is successful, you should see the following:
+- Be responsive to review comments
+- Explain complex changes
+- Provide context for decisions
+- Ask for help when needed
 
-<Frame>
-  <img
-    src="/images/checks-passed.png"
-    style={{ borderRadius:"0.5rem" }}
-  />
-</Frame>
+## Need Help?
 
-## Code Formatting
-
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
-    This may be due to an outdated version of node. Try the following:
-
-    1. Remove the currently-installed version of mintlify: `npm remove -g mintlify`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall mintlify: `npm install -g mintlify`
-  </Accordion>
-  <Accordion title="Issue: Encountering an unknown error">
-    Solution: Go to the root of your device and delete the ~/.mintlify folder. Afterwards, run `mintlify dev` again.
-  </Accordion>
-</AccordionGroup>
-
-Curious about what changed in the CLI version? [Check out the CLI changelog.](https://www.npmjs.com/package/mintlify?activeTab=versions)
+- Check the documentation
+- Ask in the community forums
+- Contact the maintainers
+- Review similar PRs
+- Check the GitHub issues
