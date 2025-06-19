@@ -50,10 +50,6 @@ description: "Welcome to the Quickstart page! Here you will learn how to set up 
    > npm run dev
    ```
 
-## Viewing the Database Structure 
-
-asdop[kfo[apsdf
-
 ## Troubleshooting
 
 ### Common Issues
@@ -68,15 +64,42 @@ asdop[kfo[apsdf
    - Confirm AWS credentials
    - Check file size limits
 
-### Getting Help
+## Viewing the Database Structure
 
-- Check the documentation
-- Search existing issues
-- Contact support team
+There are several tools that exist to be able to view the MariaDB database structure (database names, tables, columns, values, etc). One of the most popular and user-friendly options is **MySQL Workbench**.
+
+### Setup
+
+1. Download MySQL Workbench from the official website (https://dev.mysql.com/downloads/workbench/)
+
+2. Install and launch the application
+
+### Connecting to the Database
+
+1. Click the "\+" icon to create a new connection
+
+2. Configure connection settings:
+
+- Connection Name: D2D-Cure-DB
+- Hostname: [Your database host]
+- Port: 3306
+- Username: [Your database username]
+- Password: [Your database password]
+
+3. Test the connection and click "OK" to save
+
+<Note>
+  Note: please contact support to recieve the actual values for the connection settings 
+</Note>
+
+### Using MySQL Workbench
+
+- **Browse Structure**: Expand the connection in the sidebar to view databases, tables, and columns
+- **Execute Queries**: Open a new query tab to run SQL commands
+- **View Data**: Right-click on tables and select "Select Rows" to see data
 
 ## Next Steps
 
 - Explore advanced features
-- Set up automated testing
-- Configure deployment
-- Join the community
+- Create your first pull request 
+- Join the community 
