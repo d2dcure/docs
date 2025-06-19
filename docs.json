@@ -22,14 +22,13 @@
             ]
           },
           {
-            "group": "Essentials",
+            "group": "The Basics",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "the-basics/project-structure",
+              "the-basics/routing",
+              "the-basics/database",
+              "the-basics/authentication",
+              "the-basics/file-storage"
             ]
           }
         ]
