@@ -38,7 +38,8 @@
               "api-endpoints/create",
               "api-endpoints/read",
               "api-endpoints/update",
-              "api-endpoints/delete"
+              "api-endpoints/delete", 
+              "api-endpoints/misc"
             ]
           },
           {
