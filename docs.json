@@ -30,6 +30,16 @@
               "the-basics/authentication",
               "the-basics/file-storage"
             ]
+          },
+          {
+            "group": "API Endpoints",
+            "pages": [
+              "api-endpoints/overview",
+              "api-endpoints/create",
+              "api-endpoints/read",
+              "api-endpoints/update",
+              "api-endpoints/delete"
+            ]
           }
         ]
       },
