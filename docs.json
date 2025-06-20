@@ -25,7 +25,6 @@
             "group": "The Basics",
             "pages": [
               "the-basics/project-structure",
-              "the-basics/routing",
               "the-basics/database",
               "the-basics/authentication",
               "the-basics/file-storage"
