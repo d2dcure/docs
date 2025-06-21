@@ -11,7 +11,7 @@ Amazon S3, or Amazon Simple Storage Service, is **a cloud-based object storage s
 
 ### What are buckets?
 
-An Amazon S3 bucket is **a fundamental component of Amazon's Simple Storage Service (S3), acting as a container for storing and managing data in the cloud**. Essentially, it's a public cloud storage resource where data is stored as "objects" instead of traditional files. These buckets are highly scalable, durable, and secure, making them suitable for various storage needs, including backups, website hosting, and data archiving. For this codebase, the name of the bucket where everything is stored is `d2dcurebucketprod` . This is further split into folders like `gel_images` , `kinetic_assay` , and so on. For access to the AWS S3 dashboard, please contact support.
+An Amazon S3 bucket is **a fundamental component of Amazon's Simple Storage Service (S3), acting as a container for storing and managing data in the cloud**. Essentially, it's a public cloud storage resource where data is stored as "objects" instead of traditional files. These buckets are highly scalable, durable, and secure, making them suitable for various storage needs, including backups, website hosting, and data archiving. For this codebase, the name of the bucket where everything is stored is `d2dcurebucketprod` . This is further split into \*\*folders \*\*like `gel_images` , `kinetic_assay` , and so on. For access to the AWS S3 dashboard, please contact support.
 
 ### Interacting with S3
 
@@ -126,3 +126,31 @@ export default async function s3Handler(req: NextApiRequest, res: NextApiRespons
   }
 }
 ```
+
+### Usage of s3.ts
+
+- You would send a POST call to this endpoint to upload a file to the bucket
+- You would send a GET call to this endpoint to retrieve a file from the bucket
+- You would send a DELETE call to this endpoint to delete a file from the bucket
+- Notice how you also need to pass a folder name as well to this endpoint: this is because any file you want to upload/get/delete must have a folder associated with it, files do not live directly in the bucket, they live in folders in the bucket
+
+## File Management Flow
+
+### Upload Process
+
+1. **User selects file** in the application
+2. **File is converted** to base64 format
+3. **API endpoint receives** the file data with POST
+4. **S3 upload** with proper folder organization
+5. **Database record** updated with file reference
+6. **Success confirmation** returned to user
+
+### Fetch Process
+
+1. **User requests file** download
+2. **Application generates** presigned URL
+3. **User receives** secure download link
+4. **File downloads** directly from S3
+5. **URL expires** after 60 seconds
+
+For an example of the uploading and fetching files from S3 in action, explore the `components/GelUploadedView.tsx` file. 
