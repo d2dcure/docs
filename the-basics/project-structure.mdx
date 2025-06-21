@@ -7,7 +7,7 @@ description: "This page explains the project architecture (it uses Next.js), dir
 
 ### Overview
 
-D2D Cure is built using **Next.js** with the **Pages Router**, a React framework that provides server-side rendering, static site generation, and API routes. This page explains the project structure and how different parts work together.
+D2D Cure is built using **Next.js** with the **Pages Router**, a React framework that provides server-side rendering, static site generation, and API routes.
 
 ### Pages Router
 
@@ -17,7 +17,7 @@ Next.js uses a file-system based router where each file in the `src/pages` direc
 - `pages/about/index.tsx` → `https://d2d-cure.vercel.app/about` (regular route to about page)
 - `pages/api/createUser.ts` → `https://d2d-cure.vercel.app/api/createUser` (API endpoint route. This is NOT a navigable page, it is meant to be called on the frontend using 'fetch' or 'axios'. All API endpoint code files must be inside the `pages/api` folder so Next.js recognizes them as such).
 - `pages/submit/single_variant/[id].tsx` → `https://d2d-cure.vercel.app/submit/single_variant/123` (dynamic routes)
-  - Note the brackets around the "id": The brackets `[id]` tell Next.js that this is a dynamic parameter. When someone visits `/submit/single_variant/123`, the `123` becomes available in your component as `router.query.id`. This allows you to create one page that can handle multiple different IDs, like `/submit/single_variant/456`, `/submit/single_variant/789`, etc., all using the same file 
+  - Note the brackets around the "id": The brackets `[id]` tell Next.js that this is a dynamic parameter. When someone visits `/submit/single_variant/123`, the `123` becomes available in your component as `router.query.id`. This allows you to create one page that can handle multiple different IDs, like `/submit/single_variant/456`, `/submit/single_variant/789`, etc., all using the same file
 
 <Note>
   Note: The routes in the `src/pages`directory are grouped in folders based on function, for better understanding. If you wanted to create an "about" page, you wouldn't do `pages/about.tsx` : you would make a folder called "about" and put an index.tsx file in it, like this: `pages/about/index.tsx`. This results in the URL `https://d2d-cure.vercel.app/about`
