@@ -11,40 +11,41 @@ D2D Cure is built using **Next.js** with the **Pages Router**, a React framework
 
 ### Pages Router
 
-Next.js uses a file-system based router where each file in the `src/pages` directory becomes a route. By "route", we mean, a URL that a user can navigate to, a new "page" of the website so to speak (the exception to this are API endpoint routes, see below). Below are some example of regular routes, dynamic routes, and API endpoint routes: 
+Next.js uses a file-system based router where each file in the `src/pages` directory becomes a route. By "route", we mean, a URL that a user can navigate to, a new "page" of the website so to speak (the exception to this are API endpoint routes, see below). Below are some example of regular routes, dynamic routes, and API endpoint routes:
 
 - `pages/index.tsx` → `https://d2d-cure.vercel.app` (home page)
-- `pages/about/index.tsx` → `https://d2d-cure.vercel.app/about` (regular route to about page) 
-- `pages/api/createUser.ts` → `https://d2d-cure.vercel.app/api/createUser` (API endpoint route. This is NOT a navigable page, it is meant to be called on the frontend using 'fetch' or 'axios'. All API endpoint code files must be inside the `pages/api` folder so Next.js recognizes them as such). 
+- `pages/about/index.tsx` → `https://d2d-cure.vercel.app/about` (regular route to about page)
+- `pages/api/createUser.ts` → `https://d2d-cure.vercel.app/api/createUser` (API endpoint route. This is NOT a navigable page, it is meant to be called on the frontend using 'fetch' or 'axios'. All API endpoint code files must be inside the `pages/api` folder so Next.js recognizes them as such).
 - `pages/submit/single_variant/[id].tsx` → `https://d2d-cure.vercel.app/submit/single_variant/123` (dynamic routes)
+  - Note the brackets around the "id": The brackets `[id]` tell Next.js that this is a dynamic parameter. When someone visits `/submit/single_variant/123`, the `123` becomes available in your component as `router.query.id`. This allows you to create one page that can handle multiple different IDs, like `/submit/single_variant/456`, `/submit/single_variant/789`, etc., all using the same file 
 
 <Note>
   Note: The routes in the `src/pages`directory are grouped in folders based on function, for better understanding. If you wanted to create an "about" page, you wouldn't do `pages/about.tsx` : you would make a folder called "about" and put an index.tsx file in it, like this: `pages/about/index.tsx`. This results in the URL `https://d2d-cure.vercel.app/about`
 </Note>
 
-### Components Directory 
+### Components Directory
 
-The components directory, `src/components`, contains reusable React components that are used throughout the application. These are pieces of code that are meant to be imported and used in other code files in the application. These components follow React best practices and are designed to be **modular **and/or **reusable**. Some examples include: 
+The components directory, `src/components`, contains reusable React components that are used throughout the application. These are pieces of code that are meant to be imported and used in other code files in the application. These components follow React best practices and are designed to be **modular** and/or **reusable**. Some examples include:
 
-- `components/NavBar.tsx` - An example of a reusable component: this contains the code for the Navbar that is displayed on pretty much every page of the application 
-- `components/submission/OligonucleotideOrderedView.tsx` - An example of a modular component: the code for all the logic relating to the oligonucleotide ordered checklist item is contained in this component, which is used on a page in the main submission checklist view 
+- `components/NavBar.tsx` - An example of a reusable component: this contains the code for the Navbar that is displayed on pretty much every page of the application
+- `components/submission/OligonucleotideOrderedView.tsx` - An example of a modular component: the code for all the logic relating to the oligonucleotide ordered checklist item is contained in this component, which is used on a page in the main submission checklist view
 
 ### Root Directory
 
-The root directory refers to files in the main project folder, files that are at the highest level (the "root"). The root directory contains configuration files, dependencies, and other important miscellaneous files. For this project, the import root directory files/folders to note are: 
+The root directory refers to files in the main project folder, files that are at the highest level (the "root"). The root directory contains configuration files, dependencies, and other important miscellaneous files. For this project, the import root directory files/folders to note are:
 
-- `public/` - This folder contains static files served directly, like images, videos, favicons, etc. 
-- `prisma/` - This folder contains database schema files 
+- `public/` - This folder contains static files served directly, like images, videos, favicons, etc.
+- `prisma/` - This folder contains database schema files
 - `package.json`- Project dependencies, scripts, and metadata
 - `tailwind.config.ts` - Tailwind CSS configuration and custom styling
 - `firebaseConfig.js` - Firebase client configuration for authentication
 - `firebaseAdmin.js` - Firebase admin SDK for server-side operations
 - `s3config.js` - AWS S3 configuration for file storage
-- `prisma[DbName]Client.ts` - Prisma clients for databases 
+- `prisma[DbName]Client.ts` - Prisma clients for databases
 - `graph-gen.py` - Python Flask server for generating scientific plots
 - `Procfile` - Heroku deployment configuration
 
-### Overview 
+### Overview
 
 1. **Pages** go in `src/pages/`
 2. **Components** go in `src/components/`
