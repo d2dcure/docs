@@ -1,8 +1,7 @@
 ---
 title: "File Storage"
-description: "This page explains how D2D Cure handles file storage, including the AWS S3 integration, supported file types, and how files are managed throughout the application. Learn about file uploads, downloads, and the security measures in place. ."
+description: "This page explains how D2D Cure handles file storage, including the AWS S3 integration, supported file types, and how files are managed throughout the application. Learn about file uploads, downloads, and the security measures in place."
 ---
-
 
 ## AWS S3
 
@@ -12,203 +11,121 @@ Amazon S3, or Amazon Simple Storage Service, is **a cloud-based object storage s
 
 ### What are buckets? 
 
-An Amazon S3 bucket is **a fundamental component of Amazon's Simple Storage Service (S3), acting as a container for storing and managing data in the cloud**. Essentially, it's a public cloud storage resource where data is stored as "objects" instead of traditional files. These buckets are highly scalable, durable, and secure, making them suitable for various storage needs, including backups, website hosting, and data archiving. For this codebase, the name of the bucket where everything is stored is `d2dcurebucketprod` . This is further split into 
+An Amazon S3 bucket is **a fundamental component of Amazon's Simple Storage Service (S3), acting as a container for storing and managing data in the cloud**. Essentially, it's a public cloud storage resource where data is stored as "objects" instead of traditional files. These buckets are highly scalable, durable, and secure, making them suitable for various storage needs, including backups, website hosting, and data archiving. For this codebase, the name of the bucket where everything is stored is `d2dcurebucketprod` . This is further split into folders like `gel_images` , `kinetic_assay` , and so on. For access the the AWS S3 dashboard, please contact support. 
 
 ### Interacting with S3
 
 The configuration file `s3config.js` in the root directory is what establishes the connection between the codebase and the D2DCure S3 bucket in the cloud. As long as you have the proper environment variables configured the connection should establish automatically. Now when you want to actually interact with S3 (uploading, getting, or deleting files from the bucket), you would use the `s3.ts` API endpoint file: 
 
-typescript s3.ts
-
+```typescript s3.ts
 // pages/api/s3.ts
-
 import type { NextApiRequest, NextApiResponse } from 'next';
-
 import s3 from '../../../s3config';
 
 const BUCKET_NAME = 'd2dcurebucketprod';
 
 // If uploading very large files, you can increase the bodyParser size limit
-
 export const config = {
-
   api: {
-
     bodyParser: {
-
       sizeLimit: '25mb',
-
     },
-
   },
-
 };
 
 export default async function s3Handler(req: NextApiRequest, res: NextApiResponse) {
-
   try {
-
     const folder = (req.query.folder as string) || '';
 
     switch (req.method) {
-
       case 'GET': {
-
-        // 1) If ?download=\<filename\>, we generate a presigned URL for that specific file
-
-        const downloadFileName = [req.query.download](http://req.query.download) as string;
-
+        // 1) If ?download=<filename>, we generate a presigned URL for that specific file
+        const downloadFileName = req.query.download as string;
         if (downloadFileName) {
-
           const Key = folder ? `${folder}/${downloadFileName}` : downloadFileName;
-
           const url = await s3.getSignedUrlPromise('getObject', {
-
             Bucket: BUCKET_NAME,
-
             Key,
-
             Expires: 60 // URL valid for 60 seconds
-
           });
-
           return res.status(200).json({ presignedUrl: url, fileKey: Key });
-
         }
 
         // 2) Otherwise, we list all objects under the folder prefix
-
         const listParams = {
-
           Bucket: BUCKET_NAME,
-
           Prefix: folder // e.g. "gel-images/", "kinetic_assays/raw", etc.
-
         };
-
         const data = await s3.listObjectsV2(listParams).promise();
-
         return res.status(200).json({
-
           objects:
-
-            data.Contents?.map((obj) =\> ({
-
+            data.Contents?.map((obj) => ({
               key: obj.Key,
-
               url: `https://${BUCKET_NAME}.s3.amazonaws.com/${obj.Key}`
-
             })) || []
-
         });
-
       }
 
       case 'POST': {
-
         // UPLOAD a new file as base64
-
         // we expect { newFileName, fileBase64 }
-
         const { newFileName, fileBase64 } = req.body;
-
-        if (\!newFileName || \!fileBase64) {
-
+        if (!newFileName || !fileBase64) {
           return res.status(400).json({ error: 'newFileName and fileBase64 are required' });
-
         }
 
         // Convert base64 to a Buffer
-
         const fileBuffer = Buffer.from(fileBase64, 'base64');
-
         // Construct the S3 key
-
         const Key = folder ? `${folder}/${newFileName}` : newFileName;
 
         const uploadParams = {
-
           Bucket: BUCKET_NAME,
-
           Key,
-
           Body: fileBuffer
-
           // ContentType: 'image/png' or 'text/csv', etc., if you know the type
-
         };
 
         await s3.upload(uploadParams).promise();
-
         const url = `https://${BUCKET_NAME}.s3.amazonaws.com/${Key}`;
-
         return res.status(200).json({
-
           message: 'Upload success',
-
           objectKey: Key,
-
           url
-
         });
-
       }
 
       case 'DELETE': {
-
         // DELETE an object from S3
-
         // We'll expect { key } in the request body
-
         const { key } = req.body || {};
-
-        if (\!key) {
-
+        if (!key) {
           return res.status(400).json({ error: 'Missing "key" in request body' });
-
         }
 
         const deleteParams = {
-
           Bucket: BUCKET_NAME,
-
           Key: key
-
         };
 
         await s3.deleteObject(deleteParams).promise();
-
         return res.status(200).json({
-
           message: 'Delete success',
-
           deletedKey: key
-
         });
-
       }
 
       default:
-
         return res.status(405).json({ error: 'Method not allowed' });
-
     }
-
   } catch (error: any) {
-
     console.error('S3 API Error:', error);
-
     return res.status(500).json({
-
       error: error.message || 'Unexpected error'
-
     });
-
   }
-
 }
-
-\`\`\`
+```
 
 **Features** of s3.ts: 
 
@@ -226,7 +143,7 @@ export default async function s3Handler(req: NextApiRequest, res: NextApiRespons
 
 1.  **User selects file** in the application
 
-2. **File is converted** to base64 format
+2. **File is converted** to base64 format 
 
 3. **API endpoint receives** the file data
 
