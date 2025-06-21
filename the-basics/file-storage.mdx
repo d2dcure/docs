@@ -3,11 +3,6 @@ title: "File Storage"
 description: "This page explains how D2D Cure handles file storage, including the AWS S3 integration, supported file types, and how files are managed throughout the application. Learn about file uploads, downloads, and the security measures in place. ."
 ---
 
-title: "File Storage"
-
-description: "This page explains how D2D Cure handles file storage, including the AWS S3 integration, supported file types, and how files are managed throughout the application. Learn about file uploads, downloads, and the security measures in place. ."
-
----
 
 ## AWS S3
 
@@ -23,7 +18,7 @@ An Amazon S3 bucket is **a fundamental component of Amazon's Simple Storage Serv
 
 The configuration file `s3config.js` in the root directory is what establishes the connection between the codebase and the D2DCure S3 bucket in the cloud. As long as you have the proper environment variables configured the connection should establish automatically. Now when you want to actually interact with S3 (uploading, getting, or deleting files from the bucket), you would use the `s3.ts` API endpoint file: 
 
-\`\`\`typescript s3.ts
+typescript s3.ts
 
 // pages/api/s3.ts
 
