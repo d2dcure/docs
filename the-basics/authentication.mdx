@@ -1,4 +1,230 @@
 ---
 title: "Authentication"
-description: "Description of your new file."
+description: "This page explains how authentication works, including the dual user record system, Firebase integration, and how protected pages are secured. Learn about the authentication flow, user management, and security measures implemented throughout the application."
 ---
+
+## Overview
+
+D2D Cure uses a **dual authentication system** that combines **Firebase Authentication** for secure login/logout with a **custom user database** for application-specific user data. This approach provides both security and flexibility for managing user roles, permissions, and application state.
+
+## Firebase 
+
+### What is Firebase Auth?
+
+Firebase Authentication is Google's authentication service that handles user sign-in, sign-up, and session management. It provides secure, scalable authentication without requiring you to build authentication infrastructure from scratch. There are two main files relating to setting up Firebase auth in the codebase, the config file and the admin file: 
+
+- `firebaseConfig.js` - This configuration connects your application to the Firebase project and enables authentication features 
+- `firebaseAdmin.js` - This connects the Firebase Admin SDK which provides server-side authentication capabilities, like verifying Firebase tokens and performing administrative tasks
+
+### Dual User Record System
+
+D2D Cure maintains **two separate user records**: 
+
+1. **Firebase User Record**: Handles authentication (email, password, session)
+2. **Database User Record**: Stores application data (role, institution, approval status)
+
+In other words, Firebase Auth is used to handle authentication-specific tasks relating to users, while the database Users table is used to handle storing and retrieving information regarding users. 
+
+### Where are Firebase user records stored? 
+
+Firebase user records are stored on the cloud, on a dedicated Firebase project dashboard set up specifically for this application. Only authorized personnel are allowed access to this. Please contact support to learn more. 
+
+## Authentication Flow
+
+### User Registration
+
+1. **User fills signup form** on signup page, `pages/signup/index.tsx`
+2. **Firebase creates authentication record** 
+   - This uses the built-in Firebase function `createUserWithEmailAndPassword()` 
+3. **Application creates database record **
+   - This uses the custom `createUser.ts` API endpoint
+4. **User account is created** both in Firebase and in the database 
+
+### User Login 
+
+1. **User enters credentials** on login page, `pages/login/index.tsx`
+2. **Firebase authenticates** the user 
+   - This uses the built-in Firebase function `signInWithEmailAndPassword()`
+3. **AuthStateListener detects** the authentication change
+   - This is done using the `AuthStateListener.tsx` component. It automatically triggers any time auth is changed (log in/out) 
+4. **AuthStateListener fetches user data** 
+   - This uses the custom `getUserData.ts` API endpoint, passing in the email of the user who just logged in 
+5. **User context is updated** with complete user information
+   - This is done through the `UserProvider.tsx` component, which wraps the entire application to provide global user state for session management, using the info provided by AuthStateListener 
+
+### User Session Management 
+
+How do we know, in any page of the application, who is logged in? And how can we get related user information such as their email, institution, status, PI, and so forth? Well, as you read above, everything is set up so that as soon as a user logs in, all the relevant information about them (stored in the Users table) is fetched and stored as global context that can be used anywhere in the application, courtesy of `UserProvider.tsx` . All you have to do is: 
+
+1. Import the user object `UseUser` from the `UserProvider.tsx` component 
+
+   ```typescript
+   import { useUser } from '@/components/UserProvider';
+   ```
+2. Define the user and loading states as variables 
+
+   ```typescript
+   const { user, loading } = useUser();
+   ```
+3. You can now access any relevent info of the user by using the "." operator 
+
+   ```typescript
+   const institution = user.institution;
+   const userStatus = user.status 
+   ```
+
+## Protected Pages and Access Control
+
+### How Page Protection Works
+
+#### Client-Side Protection `AuthChecker.tsx`)
+
+\`\`\`typescript
+
+export const AuthChecker = ({ minimumStatus, children }) =\> {
+
+  const { user, loading } = useUser();
+
+  
+
+  if (\!user) {
+
+    return \<LoginRequiredModal /\>;
+
+  }
+
+  
+
+  if (\!validStatus()) {
+
+    return \<AccessDeniedModal /\>;
+
+  }
+
+  
+
+  return children;
+
+};
+
+\`\`\`
+
+The `AuthChecker` component:
+
+- **Wraps protected pages** to enforce authentication
+
+- **Checks user authentication** status
+
+- **Validates user permissions** based on minimum status requirement
+
+- **Shows appropriate modals** for unauthorized access
+
+### Access Levels
+
+- **ADMIN**: Full system access
+
+- **professor**: Faculty-level access
+
+- **student**: Student-level access
+
+- **other**: Limited access
+
+### User Approval Process
+
+1. **User registers** with email and password
+
+2. **Account is created** but marked as `approved: false`
+
+3. **Administrator reviews** and approves the account
+
+4. **User can access** protected features once approved
+
+## Security Features
+
+### Password Security
+
+- **Firebase handles** password hashing and security
+
+- **Minimum password length** enforced (6 characters)
+
+- **Secure password storage** in Firebase
+
+### Session Security
+
+- **Automatic session expiration**
+
+- **Secure token management**
+
+- **Cross-site request forgery protection**
+
+### Data Protection
+
+- **Environment variables** for sensitive configuration
+
+- **Input validation** on all forms
+
+- **SQL injection prevention** through Prisma ORM
+
+## Error Handling
+
+### Authentication Errors
+
+- **Invalid credentials** handling
+
+- **Account not found** scenarios
+
+- **Permission denied** responses
+
+- **Network error** recovery
+
+### User Feedback
+
+- **Loading states** during authentication
+
+- **Error messages** for failed operations
+
+- **Success notifications** for completed actions
+
+## Best Practices
+
+### For Developers
+
+- **Always check authentication** before accessing protected resources
+
+- **Use the AuthChecker component** for page protection
+
+- **Validate user permissions** in API endpoints
+
+- **Handle authentication errors** gracefully
+
+### For Users
+
+- **Use institutional email** addresses
+
+- **Create strong passwords**
+
+- **Contact support** for account issues
+
+- **Log out** when using shared computers
+
+## Troubleshooting
+
+### Common Issues
+
+- **"User not found"**: Check if user exists in both Firebase and database
+
+- **"Permission denied"**: Verify user approval status and role
+
+- **"Session expired"**: User needs to log in again
+
+- **"Account not approved"**: Contact administrator for approval
+
+### Debugging
+
+- **Check browser console** for authentication errors
+
+- **Verify environment variables** are set correctly
+
+- **Test API endpoints** directly
+
+- **Review server logs** for authentication issues
