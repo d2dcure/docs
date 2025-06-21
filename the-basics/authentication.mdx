@@ -54,7 +54,7 @@ Firebase user records are stored on the cloud, on a dedicated Firebase project d
 
 ### User Session Management 
 
-How do we know, in any page of the application, who is logged in? And how can we get related user information such as their email, institution, status, PI, and so forth? Well, as you read above, everything is set up so that as soon as a user logs in, all the relevant information about them (stored in the Users table) is fetched and stored as global context that can be used anywhere in the application, courtesy of `UserProvider.tsx` . All you have to do is: 
+How do we know, in any page of the application, who is logged in? And how can we get related user information such as their email, institution, status, PI, and so forth? Well, as you read above, everything is set up so that as soon as a user logs in, all the relevant information about them (stored in the Users table) is fetched and stored as global context that can be used anywhere in the application, courtesy of `UserProvider.tsx`. All you have to do is: 
 
 1. Import the user object `UseUser` from the `UserProvider.tsx` component 
 
@@ -77,154 +77,25 @@ How do we know, in any page of the application, who is logged in? And how can we
 
 ### How Page Protection Works
 
-#### Client-Side Protection `AuthChecker.tsx`)
-
-\`\`\`typescript
-
-export const AuthChecker = ({ minimumStatus, children }) =\> {
-
-  const { user, loading } = useUser();
-
-  
-
-  if (\!user) {
-
-    return \<LoginRequiredModal /\>;
-
-  }
-
-  
-
-  if (\!validStatus()) {
-
-    return \<AccessDeniedModal /\>;
-
-  }
-
-  
-
-  return children;
-
-};
-
-\`\`\`
+Some pages of the application are meant to only be viewable by users that have a particular status (ex. professor, admin), or pages that should only be viewable by any logged-in user. This is what we mean by "page protection." The file in charge of enforicng this is `AuthChecker.tsx` 
 
 The `AuthChecker` component:
 
 - **Wraps protected pages** to enforce authentication
-
-- **Checks user authentication** status
-
+- **Checks user authentication** status 
 - **Validates user permissions** based on minimum status requirement
+- **Shows appropriate modals** for unauthorized access 
 
-- **Shows appropriate modals** for unauthorized access
-
-### Access Levels
+### Possible Statuses 
 
 - **ADMIN**: Full system access
-
 - **professor**: Faculty-level access
-
 - **student**: Student-level access
-
 - **other**: Limited access
-
-### User Approval Process
-
-1. **User registers** with email and password
-
-2. **Account is created** but marked as `approved: false`
-
-3. **Administrator reviews** and approves the account
-
-4. **User can access** protected features once approved
-
-## Security Features
-
-### Password Security
-
-- **Firebase handles** password hashing and security
-
-- **Minimum password length** enforced (6 characters)
-
-- **Secure password storage** in Firebase
-
-### Session Security
-
-- **Automatic session expiration**
-
-- **Secure token management**
-
-- **Cross-site request forgery protection**
-
-### Data Protection
-
-- **Environment variables** for sensitive configuration
-
-- **Input validation** on all forms
-
-- **SQL injection prevention** through Prisma ORM
-
-## Error Handling
-
-### Authentication Errors
-
-- **Invalid credentials** handling
-
-- **Account not found** scenarios
-
-- **Permission denied** responses
-
-- **Network error** recovery
-
-### User Feedback
-
-- **Loading states** during authentication
-
-- **Error messages** for failed operations
-
-- **Success notifications** for completed actions
-
-## Best Practices
-
-### For Developers
-
-- **Always check authentication** before accessing protected resources
-
-- **Use the AuthChecker component** for page protection
-
-- **Validate user permissions** in API endpoints
-
-- **Handle authentication errors** gracefully
-
-### For Users
-
-- **Use institutional email** addresses
-
-- **Create strong passwords**
-
-- **Contact support** for account issues
-
-- **Log out** when using shared computers
 
 ## Troubleshooting
 
-### Common Issues
-
 - **"User not found"**: Check if user exists in both Firebase and database
-
 - **"Permission denied"**: Verify user approval status and role
-
 - **"Session expired"**: User needs to log in again
-
 - **"Account not approved"**: Contact administrator for approval
-
-### Debugging
-
-- **Check browser console** for authentication errors
-
-- **Verify environment variables** are set correctly
-
-- **Test API endpoints** directly
-
-- **Review server logs** for authentication issues
