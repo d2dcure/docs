@@ -1,4 +1,164 @@
 ---
 title: "Database"
-description: "Description of your new file."
+description: "This page explains how the codebase database system works, from the database structure to how data flows between the frontend and backend. Learn about Prisma ORM, database schemas, and how to interact with the data through REST APIs."
 ---
+
+## Overview
+
+D2D Cure uses **MariaDB** (a MySQL-compatible database) hosted on **AWS RDS** (Amazon's managed database service). The application uses **Prisma ORM** to interact with the database, and **REST API endpoints** to handle data operations between the frontend and backend.
+
+## Prisma
+
+### What is Prisma? 
+
+**Prisma** is a modern database toolkit that makes database operations easier and safer. Think of it as a translator between your application code and the database. Instead of writing raw SQL queries, you write code in your programming language (TypeScript in our case), and Prisma converts it to the correct database commands. It offers a lot of benefits, such as: 
+
+- **Type Safety**: Catches database errors at compile time
+- **Auto-completion**: Your code editor can suggest database fields
+- **Migration Management**: Handles database schema changes automatically
+- **Query Building**: Write complex queries in a simple, readable way
+
+### What are Prisma Clients?
+
+Prisma Clients are generated code files that provide a type-safe interface to interact with your database. In the case of the D2DCure codebase, since there are four main databases, we would have a client file for each one: 
+
+- `prismaUsersClient.ts` - For Users database 
+- `prismaEnzymesClient.ts` - For the Enzymes database 
+- `prismaProteinsClient.ts` - For the Proteins database 
+- `prismaPublicationsClient.ts` - For Publications database
+
+Let's take a look inside the `prismaProteinsClient.ts` file, for example: 
+
+```typescript prismaProteinsClient.ts
+import { PrismaClient } from './prisma/generated/client_proteins';
+
+const prismaProteinsClientSingleton = () => new PrismaClient();
+
+type PrismaProteinsClientSingleton = ReturnType<typeof prismaProteinsClientSingleton>;
+
+const globalForPrismaProteins = globalThis as unknown as {
+  prismaProteins: PrismaProteinsClientSingleton | undefined;
+};
+
+const prismaProteins = globalForPrismaProteins.prismaProteins ?? prismaProteinsClientSingleton();
+
+export default prismaProteins;
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrismaProteins.prismaProteins = prismaProteins;
+}
+```
+
+The client file serves three important purposes: 
+
+1. **Creates a Database Connection**: It sets up a way to talk to a database
+2. **Manages the Connection**: It makes sure we don't create multiple connections (which would be wasteful)
+3. **Provides a Safe Interface**: It gives us a clean, type-safe way to interact with the database
+
+Now, in our REST API endpoints, we can use this connection to formulate our queries. For instance, take the CharacterizationData table in the BglB (a protein) database. If we wanted to return all the rows from this table, we can create an API endpoint, called something like `getCharacterizationData.ts` , that imports the prismaProteins object that the client file above creates and exports, and do something like this: 
+
+```typescript getCharacterizationData.ts
+import prismaProteins from "../../../prismaProteinsClient";
+
+export default async function handler(req:any, res:any) {
+  try {
+    const data = await prismaProteins.characterizationData.findMany();
+    res.status(200).json(data);
+  } catch (error) {
+    console.error('Request error', error);
+    res.status(500).json({ error: 'Error fetching characterization data' });
+  }
+}
+```
+
+### What are Prisma Schema Files? 
+
+Prisma schema files are unique configuration files (they end with the extension `.prisma`) that define your database structure. They act as a blueprint that tells Prisma how to create and interact with your database tables. Typically you would create a schema file for each database you have, and then inside of this file, define all the tables, their column names, types, relationships, and so on for that database. For the D2DCure codebase, there are four databases, and thus a unique schema file for each one: 
+
+- `schema_enzymes.prisma`
+- `schema_proteins.prisma`
+- `schema_users.prisma`
+- `schema_publications.prisma` 
+
+Here's what the `schema_users.prisma` file looks like, for example: 
+
+```typescript schema_users.prisma
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+  output   = "./generated/client_users"
+}
+
+datasource db {
+  provider = "mysql" // even though we use MariaDB, mysql works just fine 
+  url      = env("DATABASE_URL_USERS") // defined in .env 
+}
+
+model Institutions {
+  id           Int     @id @default(autoincrement()) @db.UnsignedSmallInt
+  fullname     String  @db.VarChar(64)
+  abbr         String  @db.VarChar(12)
+  state        String? @db.VarChar(2)
+  country_code String  @default("USA") @db.VarChar(3)
+  url          String? @db.VarChar(100)
+}
+
+model Users {
+  id             Int          @id @default(autoincrement()) @db.UnsignedSmallInt
+  user_name      String       @db.VarChar(30)
+  given_name     String       @db.VarChar(30)
+  title          String?      @db.VarChar(50)
+  pi             String?      @db.VarChar(30)
+  institution    String       @db.VarChar(50)
+  status         Users_status
+  email          String       @db.VarChar(50)
+  password       String       @db.VarChar(30)
+  image_filename String       @db.VarChar(84)
+  approved       Boolean
+  reg_date       DateTime     @default(now()) @db.Timestamp(0)
+}
+
+enum Users_status {
+  ADMIN
+  student
+  professor
+  other
+}
+```
+
+So as you can see, in this case the Users database has two tables, one called Institutions and one called Users, as well as an enum for the User Status column. One important thing to note is, because these schemas for the databases already existed before this application was built, we did not have to manually create and populate these schema files by hand: if you want to connect an existing database with Prisma all you have to do is run the command `prisma db pull` and prisma will analyze your database structure and generate the schema file for you\! 
+
+## Data Flow Example
+
+Here's an example flow to illustrate how data flows through the application: 
+
+1. **User Action**: User clicks "Save" on a form
+2. **Frontend**: JavaScript sends data to API endpoint
+3. **API Endpoint**: Receives request and validates data
+4. **Prisma Client**: Converts request to database query
+5. **Database**: Executes query and returns result
+6. **API Endpoint**: Sends result back to frontend
+7. **Frontend**: Updates the user interface
+
+## Best Practices
+
+### Security
+
+- Never expose database credentials in code
+- Use environment variables for sensitive data
+- Validate all user inputs before database operations
+- Implement proper authentication and authorization
+
+### Performance
+
+- Use appropriate database indexes
+- Limit query results with pagination
+- Cache frequently accessed data
+- Monitor query performance
+
+### Error Handling
+
+- Always wrap database operations in try-catch blocks
+- Provide meaningful error messages
+- Log errors for debugging
+- Handle database connection issues gracefully
