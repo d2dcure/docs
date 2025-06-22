@@ -1,14 +1,58 @@
 ---
 title: "Overview"
-description: "Description of your new file."
+description: "This page provides an overview of the REST API endpoints used in the codebase, explaining how they work, when to use them, and how to create new endpoints. Learn about the CRUD operations and best practices for API development."
 ---
 
-use fetch in the frontend 
+## REST API 
 
-REST API 
+### What is REST API? 
 
-.ts or .js extension 
+REST (Representational State Transfer) APIs are web services that allow the frontend to communicate with the backend. They use HTTP methods (GET, POST, PUT, DELETE) to perform operations on data stored in the database. 
 
-use proper naming of the file that describes what this database operation does 
+### HTTP Methods
 
-the API list is pretty comprehensive, if for any reason you want to create a new one, use existing ones (CRUD) as a reference for the structure on how to create the new endpoint 
+- **GET**: Retrieve data from the server/database 
+- **POST**: Create new data on the server/database 
+- **PUT**: Update existing data on the server/database
+- **DELETE**: Remove data from the server/database 
+
+### When to Use Endpoints
+
+Use API endpoints when you need to:
+
+- **Fetch data** from the database ([GET // Read](https://d2dcure.mintlify.app/api-endpoints/read))
+- **Submit new data** to the database ([POST // Create](https://d2dcure.mintlify.app/api-endpoints/create))
+- **Update existing records** ([PUT // Update](https://d2dcure.mintlify.app/api-endpoints/update))
+- **Remove data** from the database ([DELETE // Delete](https://d2dcure.mintlify.app/api-endpoints/delete))
+- **Perform server-side operations** that can't/shouldn't be done client side ([Misc](https://d2dcure.mintlify.app/api-endpoints/misc))
+
+### Example Usage 
+
+Here's an example of how a frontend file would call these endpoints:
+
+```typescript example.tsx
+// GET request
+const response = await fetch('/api/getUserData');
+const data = await response.json(); // now you can use the data in the code!
+
+// POST request
+const response = await fetch('/api/createUser', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(userData) // what you're sending to the server!
+});
+```
+
+**Key ideas** to note about calling API endpoints in the frontend: 
+
+- Always use `await` when calling fetch to handle the asynchronous response properly
+- Check `response.ok` before processing data to handle HTTP errors (4xx, 5xx status codes)
+- Consider loading states while waiting for API responses to improve user experience
+
+## Best Practices 
+
+- Use `fetch` in the frontend to call endpoints (as opposed to something like `axios` ) 
+- Use a `.ts` or `.js` extension for endpoint files 
+- When creating a new endpoint, name it something that is indicative of the database operation of what it is performing (ex. `getCharacterizationData.ts` , `createUser.ts` ) 
+
+The endpoint list in `pages/api`is pretty exhaustive, there are Get/Create/Update/Delete endpoints for pretty much any operation on the database you can think of. If for any reason you want to create a new one, use existing endpoints as a reference for the structure on how to create the new endpoint. For example if you want to create an Update endpoint, look at the existing Update endpoints and copy their structure. 
