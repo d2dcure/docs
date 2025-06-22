@@ -2,3 +2,80 @@
 title: "Update"
 description: "This page explains how to modify existing data using PUT endpoints. Learn about updating records, partial updates, and examples of update operations, as well as view a full comprehensive list of all existing PUT endpoints in the codebase. "
 ---
+
+## Examples
+
+### Example 'Update' Endpoint
+
+```typescript updateCharacterizationDataComment.ts
+import prismaProteins from "../../../prismaProteinsClient";
+
+export default async function handler(req:any, res:any) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+
+  const { id, comment } = req.body;
+
+  try {
+    const updatedEntry = await prismaProteins.characterizationData.update({
+      where: { id: parseInt(id) },
+      data: { comments: comment },
+    });
+
+    res.status(200).json(updatedEntry);
+  } catch (error) {
+    console.error('Error updating comment:', error);
+    res.status(500).json({ error: 'Failed to update comment' });
+  }
+}
+```
+
+### Example Usage in Frontend
+
+```typescript index.tsx
+const [comment, setComment] = useState<string>(entryData.comments || '');
+const [newComment, setNewComment] = useState<string>('');
+const [editMode, setEditMode] = useState<boolean>(false);
+
+const handleSaveComment = async () => {
+    if (!newComment.trim()) return;
+    setSaving(true);
+
+    try {
+      const response = await fetch('/api/updateCharacterizationDataComment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: entryData.id,
+          comment: newComment,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save comment');
+      }
+
+      setComment(newComment);
+      setNewComment('');
+      setEditMode(false);
+    } catch (error) {
+      console.error('Error saving comment:', error);
+      alert('Failed to save comment.');
+    } finally {
+      setSaving(false);
+    }
+  };
+```
+
+## All 'Update' Endpoints in the Codebase
+
+-  `updateCharacterizationData[column_name_here].ts` - Updates the indicated column value on characterization data entry whose id is passed 
+- `updateKineticRawData.ts` - Updates kinetic raw data entry of passed id 
+- `updateKineticRawDataYield.ts` - Updates the yield value of the kinetic raw data entry 
+- `updateMeltingPointValues.ts` - Updates melting point measurements
+- `updateTempRawData.ts` - Updates temp raw data entries
+- `updateUserInfo.ts` - Updates user profile information
+- `updateUserProfileImage.ts` - Updates user profile picture
