@@ -1,4 +1,76 @@
 ---
 title: "Create"
-description: "Description of your new file."
+description: "This page explains how to create new data records using POST endpoints. Learn about the structure, usage patterns, and examples of create operations in the codebase. "
 ---
+
+## Overview 
+
+### Example 'Create' Endpoint
+
+```typescript createNewCharacterizationDataEntry.ts
+import prismaProteins from "../../../prismaProteinsClient";
+
+export default async function handler(req:any, res:any) {
+  const { username, institution, pi, resid, resnum, resmut } = req.body;
+
+  try {
+    const newDataEntry = await prismaProteins.characterizationData.create({
+      data: {
+        resid,
+        resnum: parseInt(resnum),
+        resmut,
+        creator: username,
+        institution,
+        pi,
+        // Initialize other fields to null or their default values
+      },
+    });
+
+    res.status(200).json(newDataEntry);
+  } catch (error) {
+    console.error('Request error', error);
+    res.status(500).json({ error: 'Error creating new characterization data entry' });
+  }
+}
+```
+
+### Example Usage in Frontend
+
+```typescript index.tsx
+const handleCreateNewDataset = async () => {
+    try {
+      const response = await fetch('/api/createNewCharacterizationDataEntry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: user?.user_name, 
+          institution: user?.institution, 
+          pi: user?.pi || user?.given_name,
+          resid: resid, 
+          resnum: resnum, 
+          resmut: resmut, 
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to create new dataset');
+      }
+
+      const newDataEntry = await response.json();
+      setNewEntry(newDataEntry);
+      console.log("New dataset created successfully!", newDataEntry);
+
+  
+    } catch (error) {
+      console.error('Error:', error);
+      setError('Failed to create new dataset. Please try again.');
+    }
+  };
+```
+
+### All 'Create' Endpoints in the Codebase 
+
+- `createUser.ts`
+- `createNewCharacterizationEntry.ts`
