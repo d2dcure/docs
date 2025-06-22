@@ -1,4 +1,77 @@
 ---
 title: "Read"
-description: "Description of your new file."
+description: "This page explains how to retrieve data using GET endpoints. Learn about fetching data, query parameters, and examples of read operations, as well as view a full comprehensive list of all existing GET endpoints in the codebase. "
 ---
+
+## Examples
+
+### Example 'Read' Endpoint
+
+```typescript getAllProfessors.ts
+import prismaUsers from "../../../prismaUsersClient";
+
+export default async function handler(req: any, res: any) {
+  if (req.method === 'GET') {
+    try {
+      const users = await prismaUsers.users.findMany({
+        where: {
+          OR: [
+            {
+              status: "ADMIN"
+            },
+            {
+              status: "professor"
+            },
+          ],
+        },
+      });
+      res.status(200).json(users);
+    } catch (error) {
+      console.error('Request error', error);
+      res.status(500).json({ error: 'Error fetching users' });
+    }
+  } else {
+    res.setHeader('Allow', ['GET']);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
+```
+
+### Example Usage in Frontend
+
+```typescript index.ts
+const [professors, setProfessors] = useState<any[]>([]);
+
+const fetchProfessors = async () => {
+      const response = await fetch('/api/getAllProfessors');
+      const data = await response.json();
+      const sortedData = data.sort((a:any, b:any) => a.institution.localeCompare(b.institution));
+      setProfessors(sortedData);
+    }
+```
+
+## All 'Read' Endpoints in the Codebase
+
+- `getAllUsers.ts` - Retrieves all users
+- `getAllProfessors.ts` - Fetches all professor accounts
+- `getCharDataForSubmitPage.ts` - Gets characterization data for submission forms
+- `getCharacterizationData.ts` - Fetches all characterization data
+- `getCharacterizationDataEntryFromID.ts` - Retrieves specific characterization entry by ID
+- `getCharacterizationDataForMatches.ts` - see if the variant the user is submitting data for exists already for their school
+- `getCharacterizationDataForUser.ts` - Gets characterization data for specific user
+- `getEnzymes.ts` - Fetches all enzymes (currently only BglB and hAdA)
+- `getInstitutions.ts` - Fetches all institutions
+- `getKineticData.ts` - Retrieves the corresponding kinetic data for the id of the CharData that is passed
+- `getKineticRawDataEntryData.ts` - Gets kinetic data from parent_id that is passed
+- `getKineticRawDataEntryDataFromWTid.ts` - Fetches kinetic data entry from wild-type ID
+- `getKineticRawDataFromIDs.ts` - [ ]
+- `getOligos.ts` - Fetches all oligonucleotide sequences
+- `getPendingData.ts` - Gets data pending curation approval
+- `getPublications.ts` - Retrieves all publication data
+- `getSequenceData.ts` - Fetches alll sequence data
+- `getTempData.ts` - Retrieves corresponding thermo data from passed
+- `getTempRawDataEntryData.ts` - [ ]
+- `getTempRawDataEntryDataFromWTid.ts` - Fetches temperature data entries from wild-type ID
+- `getTempRawDataFromIDs.ts` - [ ]
+- `getUserData.ts` - Retrieves user profile information
+- `getUsersFromPI.ts` - Gets users associated with a specific PI
