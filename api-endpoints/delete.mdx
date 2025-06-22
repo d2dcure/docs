@@ -1,4 +1,53 @@
 ---
 title: "Delete"
-description: "Description of your new file."
+description: "This page explains how to remove data using DELETE endpoints. Learn about deleting records, soft deletes, and examples of delete operations in the codebase, as well as view a full comprehensive list of all existing POST endpoints in the codebase. "
 ---
+
+## Examples
+
+### Example 'Delete' Endpoint
+
+```typescript deleteTempData.ts
+import prismaProteins from "../../../prismaProteinsClient";
+
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'DELETE') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
+
+  const { parent_id } = req.body;
+
+  try {
+    // Delete the row with matching parent_id
+    await prismaProteins.tempRawData.deleteMany({
+      where: {
+        parent_id: parent_id,
+      },
+    });
+
+    res.status(200).json({ message: 'Temp data deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting temp data:', error);
+    res.status(500).json({ error: 'Failed to delete temp data' });
+  }
+} 
+```
+
+### Example Usage in Frontend
+
+```typescript submit/single_variant/[id].tsx
+const response2 = await fetch('/api/deleteTempData', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ parent_id: entryData.id })
+});
+```
+
+## All 'Delete' Endpoints in the Codebase
+
+- `deleteAllUsers.ts` - Deletes all users from Firebase (not the database)
+- `deleteUsers.ts` - Deletes select user(s) from the database 
+- `firebaseDelete.ts` - Deletes select user(s) from Firebase 
+- `deleteCharacterizationEntryData.ts` - Deletes a CharData entry row, and its corresponding Kinetic and Temp row too 
+- `deleteKineticData.ts` - Deletes a kinetic data entry row 
+- `deleteTempData.ts` - Deletes a temp data entry row 
