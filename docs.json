@@ -45,9 +45,6 @@
             "group": "Advanced Features",
             "pages": [
               "advanced-features/graph-generation",
-              "advanced-features/gel-uploading",
-              "advanced-features/enzyme-checklist",
-              "advanced-features/curating-data",
               "advanced-features/modifying-database"
             ]
           }
